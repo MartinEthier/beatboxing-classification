@@ -1,7 +1,12 @@
+"""
+This script loads in each audio file in the dataset and splits it up using the given onset labels. It 
+also provides some statistic plots which are used in the report.
+"""
 from pathlib import Path
 from itertools import chain
 import argparse
 import random
+from statistics import mean
 
 import numpy as np
 import pandas as pd
@@ -44,7 +49,6 @@ def main(root_path, val_ratio):
             # Load in onset and class labels from csv
             csv_path = participant_path / f"{filename}.csv"
             label_df = pd.read_csv(csv_path, header=None)
-            #print(label_df)
             onset_labels = label_df.iloc[:, 0].to_numpy()
             class_labels = label_df.iloc[:, 1].tolist()
             assert onset_labels.shape[0] == len(class_labels)
@@ -106,15 +110,25 @@ def main(root_path, val_ratio):
     with train_list_path.open('w') as f:
         for p in train_paths:
             f.write(f"{p}\n")
+
+    print(f"Total dataset size: {len(dataset_paths)}")
+
+    sample_sizes = np.array(sample_sizes)
+    mean_size = sample_sizes.mean()
+    std_size = sample_sizes.std()
+    print(f"Mean of sample sizes: {mean_size}")
+    print(f"Standard deviation of sample sizes: {std_size}")
     
     # Generate plots to help figure out best max length
     print("Displaying dataset plots...")
     plt.hist(sample_sizes, bins='auto')
+    plt.axvline(mean_size, c='r')
     plt.title("Histogram of sample lengths")
     plt.xlabel("Time (s)")
     plt.show()
     time_axis = np.arange(0, accumulator.shape[0]) / sample_rate
     plt.plot(time_axis, accumulator, linewidth=1)
+    plt.axvline(0.95, c='r')
     plt.title("All sample waveforms accumulated")
     plt.xlabel("Time (s)")
     plt.show()

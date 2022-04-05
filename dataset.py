@@ -38,6 +38,7 @@ class BeatboxDataset(torch.utils.data.Dataset):
 
 
 if __name__=="__main__":
+    # Testing the dataset class
     from matplotlib import pyplot as plt
     import transforms as tf
     from constants import *

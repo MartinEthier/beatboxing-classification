@@ -11,7 +11,7 @@ model_name: resnet18
 pretrained: False
 
 # Training
-epochs: 60
+epochs: 50
 lr: 4.0e-4
 weight_decay: 5.0e-4
 eps: 1.0e-7

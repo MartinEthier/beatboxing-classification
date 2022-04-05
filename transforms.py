@@ -33,21 +33,9 @@ class PadToMax(object):
         return waveform
 
 
-class TimeShift(object):
-    """
-    Augmentation where the waveform is shifted by a random amount and the wave 
-    is wrapped back to the front.
-    """
-    def __init__(self, shift_range):
-        assert isinstance(shift_range, float)
-        self.shift_range = shift_range
-
-    def __call__(self, waveform):
-        return waveform
-
-
 class MelSpectrogram(object):
     """
+    Computes a Mel Spectrogram using librosa.
     """
     def __init__(self, sample_rate, n_fft=2048, hop_length=512, n_mels=128):
         assert isinstance(sample_rate, int)
@@ -69,16 +57,25 @@ class MelSpectrogram(object):
         )
         mel_spec_dB = librosa.power_to_db(mel_spec)
         return mel_spec_dB
+    
 
-
-class MaskSpectrogram(object):
+class MFCC(object):
     """
+    Calculates MFCC coefficients from given Mel Spectrogram. If desired, reduces time dimension using
+    given numpy function.
     """
-    def __init__(self):
-        pass
-
+    def __init__(self, reduction_func=None):
+        self.reduction_func = reduction_func
+    
     def __call__(self, spec):
-        return spec
+        # Compute MFCCs
+        mfcc = librosa.feature.mfcc(S=spec)
+        
+        # Reduce time dimension if function given
+        if self.reduction_func is not None:
+            mfcc = np.apply_along_axis(self.reduction_func, 1, mfcc)
+        
+        return mfcc
 
 
 class ToTensor(object):
